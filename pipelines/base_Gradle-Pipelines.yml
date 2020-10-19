@@ -81,7 +81,7 @@ pipelines:
           affinityGroup: dock1
           dockerFileLocation: tutorial/step1-create-gradle-app
           dockerFileName: Dockerfile
-          dockerImageName: demo-docker.artifactory-eu-jerome-0.soleng-emea-staging.jfrog.team:80/gradle-app
+          dockerImageName: "demo-docker.artifactory-eu-jerome-0.soleng-emea-staging.jfrog.team:80/gradle-app"
           dockerImageTag: ${Version}
           inputSteps:
             - name: configDockerDaemon
