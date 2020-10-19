@@ -84,6 +84,17 @@ pipelines:
 #            - name: promoted_npmBuild_Info
 #
 
+      - name: configDaemon
+        type: Bash
+        configuration:
+          affinityGroup: bldGroup
+          runtime:
+            type: host
+        execution:
+          onExecute:
+            - >
+              jq -n  '{ "graph": "/data", "mtu": 1460, "insecure-registries": ["demo-docker.artifactory-eu-jerome-0.soleng-emea-staging.jfrog.team:80"]}' | jq . > /etc/docker/daemon.json
+            - sudo systemctl restart docker
 
       - name: npm_docker_build
         type: DockerBuild
@@ -91,7 +102,8 @@ pipelines:
           affinityGroup: bldGroup
           dockerFileLocation: tutorial/step2-create-ui-pkg
           dockerFileName: Dockerfile
-          dockerImageName: ${Fullimagename}  
+          dockerImageName: "demo-docker.artifactory-eu-jerome-0.soleng-emea-staging.jfrog.team:80/npm-image"
+          #dockerImageName: ${Fullimagename}  
           dockerImageTag: ${Version}
           inputSteps:
             - name: npm_publish
