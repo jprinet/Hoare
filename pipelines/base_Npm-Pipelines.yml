@@ -84,12 +84,14 @@ pipelines:
 #            - name: promoted_npmBuild_Info
 #
 
-      - name: configDaemon
+      - name: configDockerDaemon
         type: Bash
         configuration:
           affinityGroup: bldGroup
           runtime:
             type: host
+          inputSteps:
+            - name: npm_publish
         execution:
           onExecute:
             - >
@@ -106,7 +108,7 @@ pipelines:
           #dockerImageName: ${Fullimagename}  
           dockerImageTag: ${Version}
           inputSteps:
-            - name: npm_publish
+            - name: configDockerDaemon
           inputResources: 
             - name: gitRepo_code
             - name: npm_fileSpec
