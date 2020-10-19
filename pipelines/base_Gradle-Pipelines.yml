@@ -61,16 +61,30 @@ pipelines:
 
 #------------------------------------Docker Section ------------------------------------------------
 
+      - name: configDockerDaemon
+        type: Bash
+        configuration:
+          affinityGroup: dock1
+          runtime:
+            type: host
+          inputSteps:
+            - name: gradle_bld_app
+        execution:
+          onExecute:
+            - >
+              jq -n  '{ "graph": "/data", "mtu": 1460, "insecure-registries": ["demo-docker.artifactory-eu-jerome-0.soleng-emea-staging.jfrog.team:80"]}' | jq . > /etc/docker/daemon.json
+            - sudo systemctl restart docker
+            
       - name: Gradle_docker_build
         type: DockerBuild
         configuration:
           affinityGroup: dock1
           dockerFileLocation: tutorial/step1-create-gradle-app
           dockerFileName: Dockerfile
-          dockerImageName: ${Fullimagename}
+          dockerImageName: demo-docker.artifactory-eu-jerome-0.soleng-emea-staging.jfrog.team:80/gradle-app
           dockerImageTag: ${Version}
           inputSteps:
-            - name: gradle_bld_app
+            - name: configDockerDaemon
           inputResources:
             - name: gitRepo_code
               trigger: false
@@ -85,7 +99,6 @@ pipelines:
           # export artifactory ip from internal build env var to tag the docker image
             - export domain=$(echo ${int_Artifactory_url} | awk -F[/:] '{print $4}' )
             - export Fullimagename="${domain}/docker-demo/gradle-app"
-
 
       - name: Gradle_docker_push
         type: DockerPush
